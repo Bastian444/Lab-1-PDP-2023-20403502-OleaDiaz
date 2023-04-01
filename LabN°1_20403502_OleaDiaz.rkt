@@ -138,6 +138,30 @@
 (define (make-user name)
   (user name))
 
+;; FUNCION SWITCH-DRIVE-INNER:
+(define (switch-drive-inner system letter)
+  (cond ((null? system) '()) 
+        ((member letter (car system))
+         (cons (cons #t (cons letter (cdr (car system)))) (cdr system)) )
+        (else (cons (car system) (switch-drive-inner (cdr system) letter)))))
+
+;; FUNCION CHECK-IF-ANY-DRIVE-IN-USE
+(define (check-if-any-drive-in-use lst)
+  (cond ((null? lst) #f) 
+        ((member #t (car lst)) #t) 
+        (else (check-if-any-drive-in-use (cdr lst)))))
+
+; FUNCION REMOVES-USE-STATE-IN-DRIVE
+(define (removes-use-state-in-drive lst)
+  (cond ((null? lst) '()) 
+        ((list? (car lst)) 
+         (cons (removes-use-state-in-drive (car lst)) 
+               (removes-use-state-in-drive (cdr lst)))) 
+        ((eq? (car lst) #t) 
+         (removes-use-state-in-drive (cdr lst))) 
+        (else (cons (car lst) (removes-use-state-in-drive (cdr lst))))))
+
+
 ;; REQUERIMIENTO FUNCIONAL N°3:
 ;; RUN
 ;; IMPLEMENTACION = USO DE FUNCION DE ORDEN SUPERIOR 
@@ -234,6 +258,38 @@
                      (get-system-user system)
                      (get-system-drive system)))))
 
+;; REQUERIMIENTO FUNCIONAL N°7:
+;; SWITCH-DRIVE
+;; IMPLEMENTACION = FUNCION CURRIFICADA, AGREGA UN BOOLEANO VERDADERO PARA EL
+;; DRIVE QUE VA A SER USADO
+;; DOMINIO = SYSTEM 
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A (FUNCIONES INTERIORES SI, PERO SWITCH-DRIVE SE LLAMA UNA SOLA VEZ).
+;; DESCRIPCION = AGREGA UN #t AL DRIVE QUE VA A SER OCUPADO, DE HABER UNO EN USO SE
+;; CAMBIA EL DRIVE EN USO PARA EL NUEVO QUE ESTA SIENDO AGREGADO. NO FUNCIONA DE NO
+;; HABER LOGEADO ANTES.
+
+(define switch-drive
+  (lambda(system)
+    (lambda(letter)
+      (if(null?(get-system-current-user system))
+         #f
+         (if(existing-drive? letter (collector-letter (get-system-drive system)))
+            (if(check-if-any-drive-in-use (get-system-drive system))
+               (make-system (get-system-current-user system)
+                            (get-system-name system)
+                            (get-system-date system)
+                            (get-system-user system)
+                            (switch-drive-inner (removes-use-state-in-drive(get-system-drive system)) letter))
+               (make-system (get-system-current-user system)
+                            (get-system-name system)
+                            (get-system-date system)
+                            (get-system-user system)
+                            (switch-drive-inner (get-system-drive system) letter)))
+            #f)))))
+
+
+
 (display "Campo de pruebas: \n")
 (define S0(system "Kali Linux"))
 (define S1((run S0 add-drive)#\C "Drive1" 2424))
@@ -244,9 +300,13 @@ S2
 S3
 (define S4((run S3 add-drive)#\D "Drive2" 1000))
 S4
-(display "Error \n")
 (define S5((run S4 register)"Robin"))
 S5
 (define S6((run S5 login)"Batman"))
 S6
+(define S7((run S6 switch-drive)#\C))
+S7
+(define S8((run S7 switch-drive)#\D))
+S8
+
 
