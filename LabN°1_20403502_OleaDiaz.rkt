@@ -92,6 +92,25 @@
           (date-hour(seconds->date(time)))
           (date-minute(seconds->date(time))))))
 
+;; FUNCION COLLECTOR-LETTER-LST
+;; DESCRIPCION: SU FUNCION ES RECOLECTAR LA LETRA DE TODOS LOS DRIVES EXISTENTES PARA
+;; PODER IDENTIFICAR SI EL DRIVE QUE SERA INGRESADO YA EXISTE.
+
+(define (collector-letter lst)
+  (cond ((null? lst) '())
+        ((not (list? (car lst))) '())
+        (else (cons (car (car lst))
+                    (collector-letter (cdr lst))))))
+
+;; FUNCION EXISTING-DRIVE?
+;; DESCRIPCION: COMPARA SI EL DRIVE QUE QUIERE SER INGRESADO EXISTE YA EN LOS DRIVES
+;; EXISTENTES.
+
+(define (existing-drive? new-drive drives)
+  (if (not (member new-drive drives))
+      #f
+      (eqv? new-drive (car (filter (lambda (x) (eqv? new-drive x)) drives)))))
+
 ;; FUNCION MAKE-SYSTEM:
 ;; DESCRIPCION: CREA UN SYSTEM
 
@@ -139,35 +158,6 @@
 ;; RECURSION =  N/A
 ;; DESCRIPCION = FUNCION CURRIFICADA QUE AGREGAR UN DRIVE A UN SISTEMA.
 
-
-;; REQUERIMIENTO FUNCIONAL N°5:
-;; REGISTER
-;; IMPLEMENTACION = FUNCION CURRIFICADA 
-;; DOMINIO = SYSTEM X (USER(STRING))
-;; RECORRIDO = SYSTEM
-;; RECURSION = N/A
-;; DESCRIPCION = AGREGA UN USUARIO A EL SISTEMA.
-
-
-;; REQUERIMIENTO FUNCIONAL N°:
-;; NOMBRE
-;; IMPLEMENTACION = 
-;; DOMINIO = 
-;; RECORRIDO = 
-;; RECURSION = 
-;; DESCRIPCION = 
-
-(define (collector-letter lst)
-  (cond ((null? lst) '())
-        ((not (list? (car lst))) '())
-        (else (cons (car (car lst))
-                    (collector-letter (cdr lst))))))
-
-(define (existing-drive? new-drive drives)
-  (if (not (member new-drive drives))
-      #f
-      (eqv? new-drive (car (filter (lambda (x) (eqv? new-drive x)) drives)))))
-
 (define add-drive
   (lambda(system)
     (lambda(letter name capacity)
@@ -183,3 +173,64 @@
                     (get-system-date system)
                     (get-system-user system)
                     (cons (make-drive letter name capacity)(get-system-drive system))))))))
+
+;; REQUERIMIENTO FUNCIONAL N°5:
+;; REGISTER
+;; IMPLEMENTACION = FUNCION CURRIFICADA 
+;; DOMINIO = SYSTEM X (USER(STRING))
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A
+;; DESCRIPCION = AGREGA UN USUARIO A EL SISTEMA, ESTE NO PUEDE EXISTIR PREVIAMENTE
+;; DE SER ASÍ CREARA UN BOOLEANO FALSO.
+
+(define register
+  (lambda(system)
+    (lambda(name)
+      (if(list?(member name (get-system-user system)))
+         #f
+         (make-system(get-system-current-user system)
+                     (get-system-name system)
+                     (get-system-date system)
+                     (cons(make-user name)(get-system-user system))
+                     (get-system-drive system))))))
+
+
+;; REQUERIMIENTO FUNCIONAL N°6:
+;; LOGIN
+;; IMPLEMENTACION = FUNCION CURRIFICADA
+;; DOMINIO = SYSTEM X (USER(STRING))
+;; RECORRIDO = SYSTEM 
+;; RECURSION = N/A
+;; DESCRIPCION = INICIA SESION CON EL NOMBRE DE UN USUARIO, ESTE DEBE EXISTIR
+;; PREVIAMENTE, SI NO EXISTE PREVIAMENTE ESTE FUNCION CREARA UN #F.
+
+(define login
+  (lambda(system)
+    (lambda(name)
+    (if(list?(member name (get-system-user system)))
+       (make-system(cons name(get-system-current-user system))
+                     (get-system-name system)
+                     (get-system-date system)
+                     (get-system-user system)
+                     (get-system-drive system))
+       #f))))
+
+;; REQUERIMIENTO FUNCIONAL N°7:
+;; LOGOUT
+;; IMPLEMENTACION = FUNCION CURRIFICADA 
+;; DOMINIO = SYSTEM 
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A
+;; DESCRIPCION = CIERRA SESION DEL USUARIO QUE ESTABA ACTIVO, DE NO HABER
+;; INICIADO SESION PREVIAMENTE, EL RESULTADO SERA UN #F.
+
+(define logout
+  (lambda(system)
+      (if(null? (get-system-current-user system))
+         #f
+         (make-system null
+                     (get-system-name system)
+                     (get-system-date system)
+                     (get-system-user system)
+                     (get-system-drive system)))))
+
