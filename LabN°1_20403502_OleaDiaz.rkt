@@ -92,4 +92,94 @@
           (date-hour(seconds->date(time)))
           (date-minute(seconds->date(time))))))
 
+;; FUNCION MAKE-SYSTEM:
+;; DESCRIPCION: CREA UN SYSTEM
 
+(define (make-system current-user name date users drive)
+  (list current-user name date users drive))
+
+;; FUNCION GET-SYSTEM-CURRENT-USER:
+(define get-system-current-user car)
+;; FUNCION GET-SYSTEM-NAME:
+(define get-system-name cadr)
+;; FUNCION GET-SYSTEM-DATE:
+(define get-system-date caddr)
+;; FUNCION GET-SYSTEM-USER:
+(define get-system-user cadddr)
+;; FUNCION GET-SYSTEM-DRIVE:
+(define get-system-drive
+  (lambda(system)
+    (car(reverse system))))
+
+;; FUNCION MAKE-DRIVE:
+(define (make-drive letter name capacity)
+  (drive letter name capacity))
+
+;; FUNCION MAKE-USUARIO:
+(define (make-user name)
+  (user name))
+
+;; REQUERIMIENTO FUNCIONAL N°3:
+;; RUN
+;; IMPLEMENTACION = USO DE FUNCION DE ORDEN SUPERIOR 
+;; DOMINIO = SYSTEM X COMANDO(FUNCION)
+;; RECORRIDO = SYSTEM (CON EL COMANDO APLICADO)
+;; RECURSION = N/A
+;; DESCRIPCION = FUNCION DE ORDEN SUPERIOR QUE RECIBE UN SISTEMA Y UN COMANDO(FUNCION)
+;; PARA POSTERIORMENTE APLICAR ESE COMANDO SOBRE EL SISTEMA.
+
+(define (run sys f)
+  (f sys))
+
+;; REQUERIMIENTO FUNCIONAL N°4:
+;; ADD-DRIVE
+;; IMPLEMENTACION = USO DE CURRIFICACION 
+;; DOMINIO = SYSTEM X (LETTER(CHAR) X NAME(STRING) X CAPACITY(NUMBER))
+;; RECORRIDO =  SYSTEM
+;; RECURSION =  N/A
+;; DESCRIPCION = FUNCION CURRIFICADA QUE AGREGAR UN DRIVE A UN SISTEMA.
+
+
+;; REQUERIMIENTO FUNCIONAL N°5:
+;; REGISTER
+;; IMPLEMENTACION = FUNCION CURRIFICADA 
+;; DOMINIO = SYSTEM X (USER(STRING))
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A
+;; DESCRIPCION = AGREGA UN USUARIO A EL SISTEMA.
+
+
+;; REQUERIMIENTO FUNCIONAL N°:
+;; NOMBRE
+;; IMPLEMENTACION = 
+;; DOMINIO = 
+;; RECORRIDO = 
+;; RECURSION = 
+;; DESCRIPCION = 
+
+(define (collector-letter lst)
+  (cond ((null? lst) '())
+        ((not (list? (car lst))) '())
+        (else (cons (car (car lst))
+                    (collector-letter (cdr lst))))))
+
+(define (existing-drive? new-drive drives)
+  (if (not (member new-drive drives))
+      #f
+      (eqv? new-drive (car (filter (lambda (x) (eqv? new-drive x)) drives)))))
+
+(define add-drive
+  (lambda(system)
+    (lambda(letter name capacity)
+    (if (null?(get-system-drive system))(make-system(get-system-current-user system)
+                    (get-system-name system)
+                    (get-system-date system)
+                    (get-system-user system)
+                    (cons (make-drive letter name capacity)(get-system-drive system)))
+              (if(existing-drive? letter (collector-letter (get-system-drive system)))
+                 #f
+                 (make-system(get-system-current-user system)
+                    (get-system-name system)
+                    (get-system-date system)
+                    (get-system-user system)
+                    (cons (make-drive letter name capacity)(get-system-drive system))))))))
