@@ -18,7 +18,7 @@
 (define system (lambda (name)
                  (if (string? name)
                      (list null name (datesys current-seconds) null null)
-                     (list null))))
+                     #f)))
 
 ;; TDA DRIVE
 ;; IMPLEMENTACION = LETRA(CHAR) X NOMBRE(STRING) X USUARIOS(LIST DE USER) X DATOS/CONTENIDO(FOLDERS/FILES)
@@ -33,7 +33,7 @@
                    (string? name)
                    (number? capacity))
                    (list letter name capacity)
-                   (list null))))
+                   #f)))
 
 ;; TDA DIRECTORY
 ;; IMPLEMENTACION = NOMBRE(STRING) X DATOS/CONTENIDO(FOLDERS/FILES)
@@ -45,7 +45,7 @@
 (define directory(lambda(name . data)
                 (if (string? name)
                     (list name)
-                    (list null))))
+                    #f)))
 
 ;; TDA FILE
 ;; IMPLEMENTACION = NOMBRE(STRING) X TIPO/EXTENSIÓN(STRING) X CONTENIDO(STRING)
@@ -60,7 +60,7 @@
                   (string? type)
                   (string? content))
                   (list name type content)
-                  (list null))))
+                  #f)))
 
 ;; TDA USER
 ;; IMPLEMENTACION = NOMBRE(STRING)
@@ -72,7 +72,7 @@
 (define user(lambda(name)
                 (if (string? name)
                     (list name)
-                    (list null))))
+                    #f)))
 
 ;; FUNCIONES UTILES:
 ;; EN ESTA PARTE SE PRESENTA UN GRUPO DE FUNCIONES NO REQUERIDAS EN EL ENUNCIADO OFICIAL
