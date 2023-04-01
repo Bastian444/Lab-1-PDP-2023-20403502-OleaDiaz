@@ -71,7 +71,7 @@
 
 (define user(lambda(name)
                 (if (string? name)
-                    (list name)
+                    name
                     #f)))
 
 ;; FUNCIONES UTILES:
@@ -233,4 +233,20 @@
                      (get-system-date system)
                      (get-system-user system)
                      (get-system-drive system)))))
+
+(display "Campo de pruebas: \n")
+(define S0(system "Kali Linux"))
+(define S1((run S0 add-drive)#\C "Drive1" 2424))
+S1
+(define S2((run S1 register)"Flash"))
+S2
+(define S3((run S2 register)"Batman"))
+S3
+(define S4((run S3 add-drive)#\D "Drive2" 1000))
+S4
+(display "Error \n")
+(define S5((run S4 register)"Robin"))
+S5
+(define S6((run S5 login)"Batman"))
+S6
 
