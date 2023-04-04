@@ -258,7 +258,7 @@
                      (get-system-user system)
                      (get-system-drive system)))))
 
-;; REQUERIMIENTO FUNCIONAL N°7:
+;; REQUERIMIENTO FUNCIONAL N°8:
 ;; SWITCH-DRIVE
 ;; IMPLEMENTACION = FUNCION CURRIFICADA, AGREGA UN BOOLEANO VERDADERO PARA EL
 ;; DRIVE QUE VA A SER USADO
@@ -287,6 +287,44 @@
                             (get-system-user system)
                             (switch-drive-inner (get-system-drive system) letter)))
             #f)))))
+
+
+;; REQUERIMIENTO FUNCIONAL N°9:
+;; MD
+;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA UNA LISTA REPRESENTANDO UN DIRECTORIO
+;; DOMINIO = SYSTEM X NEWDIRECTORY(STRING)
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A (FUNCIONES INTERIORES SI, PERO MD SE LLAMA UNA SOLA VEZ).
+;; DESCRIPCION = AGREGA EL DIRECTORIO DESEADO AL DRIVE QUE ESTA SIENDO USADO EN EL
+;; MOMENTO, ESTA CONTIENE LA INFO. REQUERIDA EN EL ENUNCIADO
+
+(define md
+  (lambda(system)
+     (lambda(name-directory)
+       (make-system (get-system-current-user system)
+                            (get-system-name system)
+                            (get-system-date system)
+                            (get-system-user system)
+                            (cons(cons(directory name-directory (get-system-current-user system)(datesys current-seconds)(datesys current-seconds)"Seguridad")(get-current-drive (get-system-drive system))) (takeout-drive(get-system-drive system)))))))
+
+;; REQUERIMIENTO FUNCIONAL N°10:
+;; CD
+;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA 
+;; DOMINIO = 
+;; RECORRIDO = 
+;; RECURSION = 
+;; DESCRIPCION = 
+;;
+
+
+(define (cd new-path)
+  (if(char? new-path)
+     (if(or(eq? #\: new-path)(eq? #\/ new-path))
+        (cond(eq? #\: new-path(list new-path))(eq? #\/ new-path(list new-path)))
+        #f);caso es un char, pero no valido 
+     #f));caso string
+
+(cd #\:)
 
 
 
