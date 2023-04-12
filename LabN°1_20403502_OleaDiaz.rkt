@@ -468,7 +468,291 @@
                 (cons(file-path (car(get-system-current-drive system))(file-name-maker (car new-file)(cadr new-file)(car(get-system-current-drive system))(car(get-system-current-path system))) new-file (cadr new-file) (get-system-current-user system)) (get-system-paths system)))
          )))
           
-                
+
+      
+;; REQUERIMIENTO FUNCIONAL N°10:
+;; DEL
+;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA 
+;; DOMINIO = 
+;; RECORRIDO = 
+;; RECURSION = 
+;; DESCRIPCION = 
+;;
+
+
+(define alphabet (list #\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K
+                       #\L #\M #\N #\O #\P #\Q #\R #\S #\T #\U #\V
+                       #\W #\X #\Y #\Z #\a #\b #\c #\d #\e #\f #\g
+                       #\h #\i #\j #\k #\l #\m #\n #\o #\p #\q #\r
+                       #\s #\t #\u #\v #\w #\x #\y #\z #\Ñ #\ñ))
+(define special-charac(list #\* #\.))
+
+;; Borra todos los archivos
+;; *.* = true
+;;; READY
+
+(define op-del-all
+  (lambda(str)
+    (if(string? str)
+       (if(and(equal?(length(string->list str))3)
+              (equal? #\* (car(string->list str)))
+              (equal? #\. (cadr(string->list str)))
+              (equal? #\* (caddr(string->list str))))
+          1
+          0)
+       #f)))
+
+;; Borra todos los archivos con extensión txt
+;; *.txt = true
+;; READY
+
+(define op-del-by-ext
+  (lambda(str)
+    (if(string? str)
+       (if(and(list?(member #\. (string->list str)))
+              (not(equal?(length(string->list str))3))
+              (equal? 2 (length(member #\. (reverse(string->list str)))))
+              (equal? #\* (cadr(member #\. (reverse(string->list str))))))
+          2
+          0)
+       #f)))
+
+;; Borra todos los archivos que comienzan con la letra f y tienen extensión txt
+;; g*.txt
+;; READY
+
+(define op-del-by-letter-and-ext
+  (lambda(str)
+    (if(string? str)
+       (if(and(list?(member #\. (string->list str)))
+              (equal? 3 (length(member #\. (reverse(string->list str)))))
+              (equal? #\* (cadr(member #\. (reverse(string->list str)))))
+              (list?(member (caddr(member #\. (reverse(string->list str)))) alphabet)))
+          3
+          0)
+       #f)))
+
+(define get-letter
+  (lambda(str)
+    (if(string? str)
+       (car(string->list str))
+       #f)))
+
+(define get-ext
+  (lambda(str)
+    (if(string? str)
+       (list->string(member #\. (string->list str)))
+       #f)))
+
+;; Borra el archivo .txt
+;; file.txt
+
+
+(define op-del-file
+  (lambda(str)
+    (if(string? str)
+       (if(and(list?(member #\. (string->list str)))
+              (not(equal? #\* (cadr(member #\. (reverse(string->list str)))))))
+          4
+          0)
+       #f)))
+              
+
+;; Borra la carpeta “folder1” con todo su contenido
+;; READY
+
+(define op-del-dir
+  (lambda(str)
+    (if(string? str)
+       (if(or(list?(member #\. (string->list str)))(list?(member #\* (string->list str))))
+          0
+          5)
+       #f)))
+
+(define get-del-option
+  (lambda(str)(+
+               (op-del-all str)
+               (op-del-by-ext str)
+               (op-del-by-letter-and-ext str)
+               (op-del-file str)
+               (op-del-dir str))))
+
+(define (delete-all lst)
+  (filter (lambda (sublst) (= (length sublst) 4))
+          lst))
+
+(define (delete-ext str lst)
+  (filter (lambda (sublst) (not (member str sublst)))
+          lst))
+
+(define (delete-by-letter-and-ext lst letter str)
+  (filter (lambda (sublst)
+            (or (= (length sublst) 4)
+                (not (and (= (length sublst) 6)
+                          (char=? (string-ref (car (caddr sublst)) 0) letter)
+                          (equal? str (cadr (caddr sublst)))))))
+          lst))
+
+(define del-by-filename-1
+  (lambda(str)
+    (if(string? str)
+       (list->string(reverse(cdr(member #\. (reverse(string->list str))))))
+       #f)))
+
+(define del-by-filename-2
+  (lambda(str)
+    (if(string? str)
+       (list->string(member #\. (string->list str)))
+       #f)))
+
+(define (del-by-name lst str1 str2)
+  (cond ((null? lst) '())
+        ((and (list? (car lst))
+              (= (length (car lst)) 6)
+              (or (member str1 (caddr (car lst)))
+                  (member str2 (caddr (car lst)))))
+         (del-by-name (cdr lst) str1 str2))
+        ((and (list? (cadr (car lst)))
+              (= (length (cadr (car lst))) 3)
+              (equal? (car (cadr (car lst))) str1)
+              (equal? (cadr (cadr (car lst))) str2)
+              (member str1 (car (caddr (cadr (car lst)))))
+              (member str2 (cadr (caddr (cadr (car lst))))))
+         (del-by-name (cdr lst) str1 str2))
+        (else (cons (car lst) (del-by-name (cdr lst) str1 str2)))))
+
+
+(define get-letter-dir-del
+  (lambda(str)
+    (if(string? str)
+       (car(string->list str))
+       #f)))
+
+(define get-ext-dir-del
+  (lambda(str)
+    (if(string? str)
+       (list->string(member #\. (string->list str)))
+       #f)))
+
+(define (delete-by-ext lst str)
+  (filter (lambda (sublst)
+            (not (member str sublst)))
+          lst))
+
+(define (delete-by-dir lists str)
+  (filter (lambda (lst) (not (string-contains? (cadr lst) str))) lists))
+
+
+(define del
+  (lambda(system)
+    (lambda(f-name-or-pattern)
+      (if(string? f-name-or-pattern)
+         (if(equal? 1 (get-del-option f-name-or-pattern))
+            (make-system
+                (get-system-current-user system)
+                (get-system-name system)
+                (get-system-date system)
+                (get-system-user system)
+                (get-system-drive system)
+                (get-system-current-drive system)
+                (list "/")
+                (delete-all(get-system-paths system)))
+            (if(equal? 2 (get-del-option f-name-or-pattern))
+              (make-system
+                (get-system-current-user system)
+                (get-system-name system)
+                (get-system-date system)
+                (get-system-user system)
+                (get-system-drive system)
+                (get-system-current-drive system)
+                (list "/")
+                (delete-ext (get-ext-dir-del f-name-or-pattern) (get-system-paths system)))
+              (if(equal? 3 (get-del-option f-name-or-pattern))
+                 (make-system
+                  (get-system-current-user system)
+                  (get-system-name system)
+                  (get-system-date system)
+                  (get-system-user system)
+                  (get-system-drive system)
+                  (get-system-current-drive system)
+                  (list "/")
+                  (delete-by-letter-and-ext (get-system-paths system) (get-letter-dir-del f-name-or-pattern) (get-ext-dir-del f-name-or-pattern)))
+                 (if(equal? 4 (get-del-option f-name-or-pattern))
+                    (make-system
+                     (get-system-current-user system)
+                     (get-system-name system)
+                     (get-system-date system)
+                     (get-system-user system)
+                     (get-system-drive system)
+                     (get-system-current-drive system)
+                     (list "/")
+                     (del-by-name (get-system-paths system) (del-by-filename-1 f-name-or-pattern) (del-by-filename-2 f-name-or-pattern)))
+                    (if(equal? 5 (get-del-option f-name-or-pattern))
+                       (make-system
+                        (get-system-current-user system)
+                        (get-system-name system)
+                        (get-system-date system)
+                        (get-system-user system)
+                        (get-system-drive system)
+                        (get-system-current-drive system)
+                        (list "/")
+                        (delete-by-dir (get-system-paths system) f-name-or-pattern))
+                       #f)))))#f))))
+
+
+
+
+;; RD
+
+(define (string-contains? str sub)
+  (cond ((>= (string-length str) (string-length sub))
+         (or (string=? (substring str 0 (string-length sub)) sub)
+             (string-contains? (substring str 1) sub)))
+        (else #f)))
+
+(define check-false
+  (lambda (lst)
+    (if (null? lst)
+        lst
+        (if (list? lst)
+            (if (equal? (car lst) #f)
+                #f
+                (if (check-false (cdr lst))
+                    lst
+                    #f))
+            #f))))
+
+(define del-inner
+  (lambda (lst str times)
+    (if (null? lst)
+        '()
+        (if (eq? times 0)
+            #f
+            (if (string-contains? (cadr (car lst)) str)
+                (del-inner (cdr lst) str (- times 1))
+                (cons (car lst) (del-inner (cdr lst) str times)))))))
+
+(define rd
+  (lambda(system)
+    (lambda(path)
+      (if(string? path)
+         (make-system
+                (get-system-current-user system)
+                (get-system-name system)
+                (get-system-date system)
+                (get-system-user system)
+                (get-system-drive system)
+                (get-system-current-drive system)
+                (get-system-current-path system)
+                (check-false(del-inner(get-system-paths system) path 2)))
+         #f))))
+
+
+
+
+; COPY
+
+
 
 
 
@@ -511,15 +795,38 @@
 (define S12((run S11 md)"LAB-PDP2"))
 ;S12
 (define S13((run S12 cd)"LAB-PDP2"))
-S13
+;S13
 (define S14((run S13 md)"Wallpapers"))
-S14
+;S14
 (define S15((run S14 cd)"Wallpapers"))
-S15
+;S15
 (define S16((run S15 cd)".."))
-S16
+;S16
 (define F1(file "Texto Calculo" ".txt" "En este texto..."))
-F1
+;F1
+(define F2(file "Una noche en medellin" ".mp3" "Me puse las balenciaga"))
+(define F3(file "Informe paradigmas" ".txt" "Laboratorio N°1"))
 (define S17((run S16 add-file)F1))
 S17
+(define S18((run S17 add-file)F2))
+S18
+(define S19((run S18 cd)"LAB-PDP2/Wallpapers"))
+S19
+(define S20((run S19 add-file)F3))
+S20
+(define S21((run S20 del)"Informe paradigmas.txt"))
+S21
+(define S22((run S21 rd)"Wallpapers"))
+S22
 
+#|
+(make-system
+                (get-system-current-user system)
+                (get-system-name system)
+                (get-system-date system)
+                (get-system-user system)
+                (get-system-drive system)
+                (get-system-current-drive system)
+                (list "/")
+                (get-system-paths system))
+|#
