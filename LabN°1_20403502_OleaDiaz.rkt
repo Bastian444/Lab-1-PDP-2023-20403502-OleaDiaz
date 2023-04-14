@@ -46,7 +46,7 @@
   (string-append (string drive) ":/" name "/"))
 
 (define (dir-name-maker-subdir name drive subdir)
-  (string-append (string drive) "/" (substring subdir 1(string-length subdir))  name "/"))
+  (string-append (string-append(string drive)"/") (substring subdir 1(string-length subdir))  name "/"))
 
 (define (directory name drive usuario system)
   (if (and
@@ -467,7 +467,7 @@
                 (get-system-current-path system) 
                 (cons(file-path (car(get-system-current-drive system))(file-name-maker (car new-file)(cadr new-file)(car(get-system-current-drive system))(car(get-system-current-path system))) new-file (cadr new-file) (get-system-current-user system)) (get-system-paths system)))
          )))
-          
+
 
       
 ;; REQUERIMIENTO FUNCIONAL N°10:
@@ -751,20 +751,85 @@
 
 
 ; COPY
+(define check-if-file ;entrega true para files y false para carpetas
+  (lambda(str)
+    (if(string? str)
+       (if(list? (member #\. (string->list str)))
+          #t
+          #f)
+       #f)))
+
+; reuso de del-by-filename-1 y del-by-filename-2
+;            (name-getter)        (ext-getter)
+
+(define (find-file str1 str2 lst) ;entrega un file
+  (cond ((null? lst) #f)
+        ((and (list? (car lst))
+              (= 6 (length (car lst)))
+              (member str1 (caddr (car lst))) 
+              (member str2 (caddr (car lst))))
+         (caddr (car lst)))
+        (else (find-file str1 str2 (cdr lst)))))
+
+(define copy-file ;returns file path
+  (lambda(src dir system)
+    (file-path (car(get-system-current-drive system)) (string-append dir (car src)(cadr src)) src (cadr src) (get-system-current-user system))))
 
 
 
+;copy-folder
+(define (check-if-belongs-lst str lst-of-lst)
+  (cond ((null? lst-of-lst) '())
+        ((check-if-belongs-helper str (car lst-of-lst))
+         (cons (car lst-of-lst)
+               (check-if-belongs-lst str (cdr lst-of-lst))))
+        (else (check-if-belongs-lst str (cdr lst-of-lst)))))
+
+(define (check-if-belongs-helper str lst)
+  (string-contains? (cadr lst) str))
+
+(define get-folders-apply
+ (lambda(str lst)
+   (check-if-belongs-lst str lst)))
+
+(define (path-from-copies str lst)
+  (map (lambda (inner)
+         (list (car inner) str (cddr inner)))
+       lst))
+
+(define copy-folder
+  (lambda(src dir paths)
+    (path-from-copies dir (get-folders-apply src paths))))
 
 
+(define copy
+  (lambda(system)
+    (lambda(src dir)
+      (if(and(string? src)(string? dir))
+         (make-system
+          (get-system-current-user system)
+          (get-system-name system)
+          (get-system-date system)
+          (get-system-user system)
+          (get-system-drive system)
+          (get-system-current-drive system)
+          (get-system-current-path system)
+          (cons
+           (if(check-if-file src)
+              (copy-file (find-file (del-by-filename-1 src)(del-by-filename-2 src) (get-system-paths system)) dir system)
+              (copy-folder src dir (get-system-paths system)))
+           (get-system-paths system)))
+         #f))))
 
 
+;; COMIENZO MOVE
 
 
-
-
-
-
-
+(define move
+  (lambda(system)
+    (lambda(src dir)
+      (
+      
           
 
 (display "Campo de pruebas: \n")
@@ -807,17 +872,19 @@
 (define F2(file "Una noche en medellin" ".mp3" "Me puse las balenciaga"))
 (define F3(file "Informe paradigmas" ".txt" "Laboratorio N°1"))
 (define S17((run S16 add-file)F1))
-S17
+;S17
 (define S18((run S17 add-file)F2))
-S18
+;S18
 (define S19((run S18 cd)"LAB-PDP2/Wallpapers"))
-S19
+;S19
 (define S20((run S19 add-file)F3))
 S20
-(define S21((run S20 del)"Informe paradigmas.txt"))
+(define S21((run S20 copy) "Wallpapers" "d:/"))
 S21
-(define S22((run S21 rd)"Wallpapers"))
-S22
+
+
+
+
 
 #|
 (make-system
