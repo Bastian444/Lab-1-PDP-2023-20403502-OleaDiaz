@@ -6,7 +6,7 @@
 ;; POR: BASTIAN OLEA DIAZ
 
 ;; REQUERIMIENTO FUNCIONAL N°1:
-;; TDA´S (TIPOS DE DATO ABSTRACTOS)
+;; TDA'S (TIPOS DE DATO ABSTRACTOS)
 
 ;; TDA SYSTEM, TAMBIEN CONSTRUCTOR (REQUERIMIENTO FUNCIONAL N°2)
 ;; IMPLEMENTACION = USUARIO LOGEADO(LIST) X NOMBRE(STRING) X FECHA DE CREACION(LIST) X USUARIOS(LIST DE USER) X DRIVE(LISTA DE CHAR) X DRIVE EN USO (CHAR) X CURRENT-PATH (STRING) X RUTAS (LISTA DE RUTAS)
@@ -824,12 +824,45 @@
 
 ;; COMIENZO MOVE
 
+(define (delete-original lsts str1 str2)
+  (cond ((null? lsts) '())
+        ((and (= (length (car lsts)) 6)
+              (member str1 (cadr (car lsts)))
+              (member str2 (cadr (car lsts))))
+         (cons (car lsts) (delete-original (cdr lsts) str1 str2)))
+        (else (delete-original (cdr lsts) str1 str2))))
+
+(define (delete-original-dir str lsts)
+  (cond ((null? lsts) '()) ; base case: empty list
+        ((string-contains? (string-upcase (cadr (car lsts))) (string-upcase str))
+         (delete-original-dir str (cdr lsts))) ; skip this list and move on to the next
+        (else (cons (car lsts) (delete-original-dir str (cdr lsts)))))) ; keep this list and move on to the next
+
 
 (define move
   (lambda(system)
     (lambda(src dir)
-      (
-      
+      (if(and(string? src)(string? dir))
+         (if(list?(member #\. (string->list src)))      ;Caso archivo
+            (make-system
+             (get-system-current-user system)
+             (get-system-name system)
+             (get-system-date system)
+             (get-system-user system)
+             (get-system-drive system)
+             (get-system-current-drive system)
+             (get-system-current-path system)
+             (cons(copy-file (find-file (del-by-filename-1 src)(del-by-filename-2 src) (get-system-paths system)) dir system)(delete-original (get-system-paths system)(del-by-filename-1 src)(del-by-filename-2 src))))
+            (make-system                                ;Caso directorio
+             (get-system-current-user system)
+             (get-system-name system)
+             (get-system-date system)
+             (get-system-user system)
+             (get-system-drive system)
+             (get-system-current-drive system)
+             (get-system-current-path system)
+             (cons (copy-folder src dir (delete-original-dir src (get-system-paths system))))))#f))))
+     
           
 
 (display "Campo de pruebas: \n")
