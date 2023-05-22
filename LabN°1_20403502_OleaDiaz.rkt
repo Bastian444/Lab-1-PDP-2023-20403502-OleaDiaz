@@ -9,7 +9,7 @@
 ;; TDA'S (TIPOS DE DATO ABSTRACTOS)
 
 ;; TDA SYSTEM, TAMBIEN CONSTRUCTOR (REQUERIMIENTO FUNCIONAL N°2)
-;; IMPLEMENTACION = USUARIO LOGEADO(LIST) X NOMBRE(STRING) X FECHA DE CREACION(LIST) X USUARIOS(LIST DE USER) X DRIVE(LISTA DE CHAR) X DRIVE EN USO (CHAR) X CURRENT-PATH (STRING) X RUTAS (LISTA DE RUTAS)
+;; IMPLEMENTACION = DECLARATIVA, USO DE LISTA
 ;; DOMINIO = NOMBRE DEL SISTEMA
 ;; RECORRIDO = SYSTEM
 ;; RECURSION = N/A
@@ -21,7 +21,7 @@
                      #f)))
 
 ;; TDA DRIVE
-;; IMPLEMENTACION = LETRA(CHAR) X NOMBRE(STRING) X USUARIOS(LIST DE USER) X DATOS/CONTENIDO(FOLDERS/FILES)
+;; IMPLEMENTACION = DECLARATIVA, USO DE LISTA
 ;; DOMINIO = LETRA, NOMBRE, CAPACIDAD
 ;; RECORRIDO = DRIVE
 ;; RECURSION = N/A
@@ -36,17 +36,11 @@
                    #f)))
 
 ;; TDA DIRECTORY
-;; IMPLEMENTACION = NOMBRE(STRING) X DATOS/CONTENIDO(FOLDERS/FILES)
-;; DOMINIO = NOMBRE
+;; IMPLEMENTACION = DECLARATIVA, USO DE LISTA
+;; DOMINIO = NOMBRE, DRIVE, USUARIO, SYSTEM
 ;; RECORRIDO = DIRECTORIO
 ;; RECURSION = N/A
-;; DESCRIPCION = FUNCION QUE POSTERIORMENTE SE UTILIZARÁ PARA GENERAR UN DIRECTORIO EN EL DRIVE
-
-(define (dir-name-maker name drive)
-  (string-append (string drive) ":/" name "/"))
-
-(define (dir-name-maker-subdir name drive subdir)
-  (string-append (string-append(string drive)"/") (substring subdir 1(string-length subdir))  name "/"))
+;; DESCRIPCION = FUNCION QUE POSTERIORMENTE SE UTILIZARÁ PARA GENERAR UN DIRECTORIO.
 
 (define (directory name drive usuario system)
   (if (and
@@ -58,17 +52,27 @@
                      (dir-name-maker-subdir name drive (car(get-system-current-path system)))) (datesys current-seconds) usuario)
       #f))
 
+;; DIR-NAME-MAKER & DIR-NAME-MAKER
+;; IMPLEMENTACION =  DECLARATIVA, MANIPULACION DE STRINGS
+;; DOMINIO = NOMBRE(STRING) X DRIVE(USER)
+;; RECORRIDO = PATH
+;; RECURSION = N/A
+;; DESCRIPCION = GENERA UIN PATH QUE SERÁ AGREGADO LUEGO CON TODOS LOS PATH EXISTENTES. UN FUNCION APLICA
+;; PARA DIRECTORIOS QUE ESTAN EN DIRECTOS EN LA RAIZ DE UN DRIVE Y EL OTRO (DIR-NAME-MAKER-SUBDIR) SE USA
+;; PARA DIRECTORIOS QUE ESTEN CONTENIDOS EN OTROS DIRECTORIOS.
 
+(define (dir-name-maker name drive)
+  (string-append (string drive) ":/" name "/"))
+
+(define (dir-name-maker-subdir name drive subdir)
+  (string-append (string-append(string drive)"/") (substring subdir 1(string-length subdir))  name "/"))
 
 ;; TDA FILE
-;; IMPLEMENTACION = NOMBRE(STRING) X TIPO/EXTENSIÓN(STRING) X CONTENIDO(STRING)
+;; IMPLEMENTACION = DECLARATIVA, USO DE LISTA
 ;; DOMINIO = NOMBRE, TIPO, CONTENIDO
 ;; RECORRIDO = FILE
 ;; RECURSION = N/A
 ;; DESCRIPCION = FUNCION QUE POSTERIORMENTE SE UTILIZARA PARA GENERAR UN FILE
-
-(define (file-name-maker name ext drive current-dir)
-  (string-append (string drive) (substring current-dir 1(string-length current-dir)) name ext))
 
 (define file(lambda(name ext content)
               (if (and
@@ -78,20 +82,30 @@
                   (list name ext content)
                   #f)))
 
+;; FILE-NAME-MAKER 
+;; IMPLEMENTACION = DECLARATIVA, MANIPULACION STRING 
+;; DOMINIO = NOMBRE, TIPO, DRIVE, ACTUAL RUTA
+;; RECORRIDO = NOMBRE DE UN FILE (STRING)
+;; RECURSION = N/A
+;; DESCRIPCION = A PARTIR DE LOS COMPONENTES DEFINIDOS EN DOMINIO CREA UN NOMBRE.
+;; EJEMPLO: "C:/FOLDER/TEXTO.pdf"
+
+(define (file-name-maker name ext drive current-dir)
+  (string-append (string drive) (substring current-dir 1(string-length current-dir)) name ext))
+
+;; FILE-PATH
+;; IMPLEMENTACION = DECLARATIVA MANIPULACION STRING
+;; DOMINIO = DRIVE,RUTA, FILE, TIPO, USUARIO
+;; RECORRIDO = RUTA(STRING)
+;; RECURSION = N/A
+;; DESCRIPCION = GENERA UNA RUTA QUE SE AÑADIRA A LAS YA EXISTENTES TOMANDO EL ARCHIVO COMO
+;; UNA DE SUS ENTRADAS.
+
 (define file-path(lambda(drive path file ext user)
                    (list drive path file ext (datesys current-seconds) user)))
 
-
-
-
-
-#|
-(define file-path(lambda drive path file ext date user)
-  (list drive (file-name-maker (car file) drive (get-current-path system)) file ext (datesys current-seconds) user))
-|#
-
 ;; TDA USER
-;; IMPLEMENTACION = NOMBRE(STRING)
+;; IMPLEMENTACION = DECLARATIVA
 ;; DOMINIO = NOMBRE
 ;; RECORRIDO = USER
 ;; RECURSION = N/A
@@ -108,6 +122,10 @@
 ;; CASOS ESTAS REPRESENTARAN UNA OPTIMIZACION PARA EL PROYECTO.
 
 ;; FUNCION DATESYS
+;; IMPLEMENTACION =  DECLARATIVA, USO DE LISTA, USO DE FUNCION DEL SISTEMA
+;; DOMINIO = TIEMPO(CURRENT-SECONDS)
+;; RECORRIDO = LISTA DE VALORES QUE INDICAN UN "TIMESTAMP"
+;; RECURSION = N/A
 ;; DESCRIPCION: LA INTENCION AQUI ES LOGRAR UNA REPRESENTACION DE LA FECHA MAS AMIGABLE
 ;; PARA QUIEN HAGA USO DE ESTE PROGRAMA. LA IDEA DE TIMESTAMP(MARCA TEMPORAL) ES UN
 ;; CONCEPTO QUE SERA REQUERIDO DURANTE TODO ESTE PROYECTO.
@@ -122,6 +140,10 @@
 
 
 ;; FUNCION COLLECTOR-LETTER-LST
+;; IMPLEMENTACION =  DECLARATIVA, USO DE LISTA
+;; DOMINIO = DRIVES(LISTA DE DRIVES)
+;; RECORRIDO = LISTA CON LAS LETRAS DE TODOS LOS DRIVES EXISTENTES
+;; RECURSION = NATURAL
 ;; DESCRIPCION: SU FUNCION ES RECOLECTAR LA LETRA DE TODOS LOS DRIVES EXISTENTES PARA
 ;; PODER IDENTIFICAR SI EL DRIVE QUE SERA INGRESADO YA EXISTE.
 
@@ -132,6 +154,10 @@
                     (collector-letter (cdr lst))))))
 
 ;; FUNCION EXISTING-DRIVE?
+;; IMPLEMENTACION =  DECLARATIVA
+;; DOMINIO = DRIVE, LISTA 
+;; RECORRIDO = BOOLEANO
+;; RECURSION = N/A
 ;; DESCRIPCION: COMPARA SI EL DRIVE QUE QUIERE SER INGRESADO EXISTE YA EN LOS DRIVES
 ;; EXISTENTES.
 
@@ -140,77 +166,133 @@
       #f
       (eqv? new-drive (car (filter (lambda (x) (eqv? new-drive x)) drives)))))
 
-;; FUNCION MAKE-SYSTEM:
-;; DESCRIPCION: CREA UN SYSTEM
+;; FUNCION MAKE-SYSTEM
+;; IMPLEMENTACION =  DECLARATIVA, USO DE LISTA
+;; DOMINIO = USUARIO ACTIVO, NOMBRE, FECHA DE CREACION, USUARIOS, DRIVES, DRIVE ACTUAL, RUTA ACTUAL, RUTAS
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A
+;; DESCRIPCION: CREA UN SYSTEM.
 
 (define (make-system current-user name date users drives current-drive current-path paths)
   (list current-user name date users drives current-drive current-path paths))
 
-;; FUNCION GET-SYSTEM-CURRENT-USER:
+;; FUNCION GET-SYSTEM-CURRENT-USER
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA CON EL STRING DEL USUARIO ACTIVO
+;; RECURSION = N/A
+;; DESCRIPCION = SE ENTREGA UN SYSTEM Y RETORNA LA LISTA QUE CONTIENE EL STRING DEL USUARIO ACTIVO EN EL
+;; MOMENTO.
+
 (define get-system-current-user car)
-;; FUNCION GET-SYSTEM-NAME:
+
+;; FUNCION GET-SYSTEM-NAME
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = SYSTEM
+;; RECORRIDO = STRING
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y RETORNA EL STRING EQUIVALENTE AL NOMBRE DEL SYSTEM.
+
 (define get-system-name cadr)
-;; FUNCION GET-SYSTEM-DATE:
+
+;; FUNCION GET-SYSTEM-DATE
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA QUE REPRESENTA EL TIMESTAMP
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y DEVUELVE LA LISTA QUE CONTIENE LA FECHA DE CREACION
+;; DEL SYSTEM.
+
 (define get-system-date caddr)
-;; FUNCION GET-SYSTEM-USER:
+
+;; FUNCION GET-SYSTEM-USER
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA DE USER'S
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y RETORNA UNA LISTA QUE CONTIENE LOS USUARIOS REGISTRADOS
+;; EN EL SYSTEM.
+
 (define get-system-user cadddr)
-;; FUNCION GET-SYSTEM-DRIVE:
+
+;; FUNCION GET-SYSTEM-DRIVE
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA DE DRIVES
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y RETORNA LA LISTA DE LOS DRIVES EXISTENTES EN EL SYSTEM.
+;; A PARTIR DE AQUI SE MANEJA A PARTIR DE UN REVERSE YA QUE LA FUNCION CADDDR DEFINIDA EN
+;; SCHEME/RACKET TIENE COMO LIMITE CADDDR Y CADDDDR NO EXISTE.
+
 (define get-system-drive
   (lambda(system)
     (cadddr(reverse system))))
-;; FUNCION GET-SYSTEM-CURRENT-DRIVE:
+
+;; FUNCION GET-SYSTEM-CURRENT-DRIVE
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA CON LA LETRA DEL DRIVE OCUPADO EN ESE MOMENTO
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y RETORNA LA LISTA CON EL CHAR DEL DRIVE OCUPADO EN EL MOMENTO.
+
 (define get-system-current-drive
   (lambda(system)
     (caddr(reverse system))))
-;; FUNCION GET-SYSTEM-CURRENT-PATH:
+
+;; FUNCION GET-SYSTEM-CURRENT-PATH
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA QUE CONTIENE EL STRING QUE REPRESENTA LA RUTA ACTUAL
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y RETORNA UNA LISTA QUE CONTIENE EL STRING DE LA RUTA ACTUAL.
+
 (define get-system-current-path
   (lambda(system)
     (cadr(reverse system))))
-;; FUNCION GET-SYSTEM-PATHS:
+
+;; FUNCION GET-SYSTEM-PATHS
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = SYSTEM
+;; RECORRIDO = LISTA QUE CONTIENE LISTAS DE TODAS LAS RUTAS PRESENTES EN EL SYSTEM
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN SYSTEM Y RETORNA TODAS LAS RUTAS EXISTENTES EN EL SYSTEM.
+
 (define get-system-paths
   (lambda(system)
     (car(reverse system))))
 
-;; FUNCION TAKEOUT-DRIVE:
-(define (takeout-drive drive)
-  (cond ((null? drive) '()) 
-        ((member #t (car drive))
-         (takeout-drive (cdr drive))) 
-        (else (cons (car drive) (takeout-drive (cdr drive))))))
+;; FUNCION MAKE-DRIVE
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = LETTER(CHAR), NAME(STRING), CAPACITY(INT)
+;; RECORRIDO = DRIVE
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE LOS 3 COMPONENTES PROPIOS DE UN DRIVE, PARA VALIDARLOS A TRAVES
+;; DEL TDA DEFINIDO EN UN PRINCIPIO, DE SER VALIDO CREA UN DRIVE.
 
-;; FUNCION MAKE-DRIVE:
 (define (make-drive letter name capacity)
   (drive letter name capacity))
 
-;; FUNCION MAKE-USUARIO:
+;; FUNCION MAKE-USER
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = NAME(STRING)
+;; RECORRIDO = USER
+;; RECURSION = N/A
+;; DESCRIPCION = RECIBE UN STRING Y LO VALIDA A TRAVES DEL TDA USER DEFINIDO PREVIAMENTE.
+
 (define (make-user name)
   (user name))
 
-;; FUNCION SWITCH-DRIVE-INNER:
-(define (switch-drive-inner system letter)
-  (cond ((null? system) '()) 
-        ((member letter (car system))
-         (cons (cons #t (cons letter (cdr (car system)))) (cdr system)) )
-        (else (cons (car system) (switch-drive-inner (cdr system) letter)))))
+;; FUNCION SLASH-REMOVER
+;; IMPLEMENTACION = DECLARATIVA, MANEJO DE STRING
+;; DOMINIO = LISTA(UN STRING TRANSFORMADO A UNA LISTA PARA PODER SER MANIPULADO)
+;; RECORRIDO = STRING CON SLASH REMOVIDO Y LO QUE LO PRECEDE ANTERIORMENTE.
+;; RECURSION = NATURAL
+;; DESCRIPCION = EL PROPOSITO DE ESTA FUNCION ES ENCONTRAR SUBDIREACTORIOS, SE BASA
+;; EN EL LOS SLASHES DE UNA RUTA, EJEMPLO DE ESTO SERIA:
+;; C:/FOLDER1/FOLDER2/
+;; ELMINA EL PRIMER SLASH Y SE DETIENE AL ENCONTRAR EL SEGUNDO:
+;; C:/FOLDER1/
 
-;; FUNCION CHECK-IF-ANY-DRIVE-IN-USE:  
-(define (check-if-any-drive-in-use lst)
-  (if(null?(get-system-current-drive lst))
-     #f
-     #t))
-
-;; FUNCION REMOVES-USE-STATE-IN-DRIVE:
-(define (removes-use-state-in-drive lst)
-  (make-system(get-system-current-user system)
-                    (get-system-name system)
-                    (get-system-date system)
-                    (get-system-user system)
-                    (get-system-drive system)
-                    null
-                    (get-system-current-path system)
-                    (get-system-paths)))
-
-;; FUNCION SLASH-REMOVER:
 (define (slash-remover lst)
   (if (null? lst)       ; Lista vacia devuvelve la lista
       lst
@@ -219,16 +301,32 @@
           (slash-remover (cdr lst)))))
 
 ;; FUNCION BACK-CD:
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = STRING
+;; RECURSION = N/A
 ;; DESCRIPCION: IMPLEMENTADA PARA DAR SOLUCION A LA OPCION DEL CD ".." LO QUE HACE ES
 ;; MODIFICAR GENERAR LA RUTA PARA LA CARPETA QUE CONTIENE A LA ACTUAL.
+
 (define back-cd
   (lambda(path)
-    (string-append(list->string(reverse(slash-remover(slash-remover(reverse(string->list path))))))"/"))) 
+    (string-append(list->string(reverse(slash-remover(slash-remover(reverse(string->list path))))))"/")))
+
+;; FUNC. ALPHABET CONTIENE LOS CARACTERES DEL ABECEDARIO/SPECIAL-CHARAC Y SE USA PARA MANIPULAR STRINGS.
+;; FUNC. SPECIAL-CHARAC CONTIENE CARACTERES ESPECIALES QUE SE PUEDAN ENTREGAR EN UN DEL.
+
+(define alphabet (list #\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K
+                       #\L #\M #\N #\O #\P #\Q #\R #\S #\T #\U #\V
+                       #\W #\X #\Y #\Z #\a #\b #\c #\d #\e #\f #\g
+                       #\h #\i #\j #\k #\l #\m #\n #\o #\p #\q #\r
+                       #\s #\t #\u #\v #\w #\x #\y #\z #\Ñ #\ñ))
+
+(define special-charac(list #\* #\.))
 
 ;; REQUERIMIENTO FUNCIONAL N°3:
 ;; RUN
 ;; IMPLEMENTACION = USO DE FUNCION DE ORDEN SUPERIOR 
-;; DOMINIO = SYSTEM X COMANDO(FUNCION)
+;; DOMINIO = SYSTEM, COMANDO(FUNCION)
 ;; RECORRIDO = SYSTEM (CON EL COMANDO APLICADO)
 ;; RECURSION = N/A
 ;; DESCRIPCION = FUNCION DE ORDEN SUPERIOR QUE RECIBE UN SISTEMA Y UN COMANDO(FUNCION)
@@ -240,10 +338,11 @@
 ;; REQUERIMIENTO FUNCIONAL N°4:
 ;; ADD-DRIVE
 ;; IMPLEMENTACION = USO DE CURRIFICACION 
-;; DOMINIO = SYSTEM X (LETTER(CHAR) X NAME(STRING) X CAPACITY(NUMBER))
+;; DOMINIO = SYSTEM, (LETTER(CHAR), NAME(STRING), CAPACITY(NUMBER))
 ;; RECORRIDO =  SYSTEM
 ;; RECURSION =  N/A
-;; DESCRIPCION = FUNCION CURRIFICADA QUE AGREGAR UN DRIVE A UN SISTEMA.
+;; DESCRIPCION = FUNCION CURRIFICADA QUE AGREGA UN DRIVE A UN SISTEMA. VERIFICA SI
+;; LA LETRA ES UNICA.
 
 (define add-drive
   (lambda(system)
@@ -271,7 +370,7 @@
 ;; REQUERIMIENTO FUNCIONAL N°5:
 ;; REGISTER
 ;; IMPLEMENTACION = FUNCION CURRIFICADA 
-;; DOMINIO = SYSTEM X (USER(STRING))
+;; DOMINIO = SYSTEM, (USER(STRING))
 ;; RECORRIDO = SYSTEM
 ;; RECURSION = N/A
 ;; DESCRIPCION = AGREGA UN USUARIO A EL SISTEMA, ESTE NO PUEDE EXISTIR PREVIAMENTE
@@ -295,7 +394,7 @@
 ;; REQUERIMIENTO FUNCIONAL N°6:
 ;; LOGIN
 ;; IMPLEMENTACION = FUNCION CURRIFICADA
-;; DOMINIO = SYSTEM X (USER(STRING))
+;; DOMINIO = SYSTEM, (USER(STRING))
 ;; RECORRIDO = SYSTEM 
 ;; RECURSION = N/A
 ;; DESCRIPCION = INICIA SESION CON EL NOMBRE DE UN USUARIO, ESTE DEBE EXISTIR
@@ -343,7 +442,7 @@
 ;; SWITCH-DRIVE
 ;; IMPLEMENTACION = FUNCION CURRIFICADA, AGREGA UN BOOLEANO VERDADERO PARA EL
 ;; DRIVE QUE VA A SER USADO
-;; DOMINIO = SYSTEM X DRIVE(CHAR)
+;; DOMINIO = SYSTEM, DRIVE(CHAR)
 ;; RECORRIDO = SYSTEM
 ;; RECURSION = N/A (FUNCIONES INTERIORES SI, PERO SWITCH-DRIVE SE LLAMA UNA SOLA VEZ).
 ;; DESCRIPCION = AGREGA UN #t AL DRIVE QUE VA A SER OCUPADO, DE HABER UNO EN USO SE
@@ -378,7 +477,7 @@
 ;; REQUERIMIENTO FUNCIONAL N°9:
 ;; MD
 ;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA UNA LISTA REPRESENTANDO UN DIRECTORIO
-;; DOMINIO = SYSTEM X NEWDIRECTORY(STRING)
+;; DOMINIO = SYSTEM, NEWDIRECTORY(STRING)
 ;; RECORRIDO = SYSTEM
 ;; RECURSION = N/A (FUNCIONES INTERIORES SI, PERO MD SE LLAMA UNA SOLA VEZ).
 ;; DESCRIPCION = AGREGA EL DIRECTORIO DESEADO AL DRIVE QUE ESTA SIENDO USADO EN EL
@@ -400,12 +499,11 @@
 
 ;; REQUERIMIENTO FUNCIONAL N°10:
 ;; CD
-;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA 
-;; DOMINIO = 
-;; RECORRIDO = 
-;; RECURSION = 
-;; DESCRIPCION = 
-;;
+;; IMPLEMENTACION = FUNCION CURRIFICADA. DECLARATIVA
+;; DOMINIO = SYSTEM, PATH(STRING)
+;; RECORRIDO = SYSTEM CON LA RUTA ACTUAL CAMBIADA A LA DESEADA
+;; RECURSION = N/A
+;; DESCRIPCION = SE APLICA LA FUNCION TOMANDO EN CUENTA SUS OPCIONES VARIABLES. CAMBIA LA RUTA ACTUAL.
 
 (define cd
   (lambda(system)
@@ -445,14 +543,13 @@
 
 
 
-;; REQUERIMIENTO FUNCIONAL N°10:
+;; REQUERIMIENTO FUNCIONAL N°11:
 ;; ADD-FILE
-;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA 
-;; DOMINIO = 
-;; RECORRIDO = 
-;; RECURSION = 
-;; DESCRIPCION = 
-;;
+;; IMPLEMENTACION = FUNCION CURRIFICADA, DECLARATIVA
+;; DOMINIO = SYSTEM, FILE
+;; RECORRIDO = SYSTEM CON EL FILE AÑADIDO
+;; RECURSION = N/A
+;; DESCRIPCION = SE AGREGA UN FILE QUE DEBE SER PREVIAMENTE DEFINIDO
 
 (define add-file
   (lambda(system)
@@ -470,26 +567,23 @@
 
 
       
-;; REQUERIMIENTO FUNCIONAL N°10:
-;; DEL
-;; IMPLEMENTACION = FUNCION CURRIFICADA. AGREGA 
-;; DOMINIO = 
-;; RECORRIDO = 
-;; RECURSION = 
-;; DESCRIPCION = 
-;;
+;; FUNCIONES PARA OPCIONES DE FUNCION DEL
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = NUMERO QUE REPRESENTA LA OPCION QUE SE EJECUTARA
+;; RECURSION = N/A
+;; DESCRIPCION = ENTREGA UN NUMERO QUE INDICA QUE TIPO OPCION DEL COMANDO
+;; DEL SE DEBE EJECUTAR
 
-
-(define alphabet (list #\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K
-                       #\L #\M #\N #\O #\P #\Q #\R #\S #\T #\U #\V
-                       #\W #\X #\Y #\Z #\a #\b #\c #\d #\e #\f #\g
-                       #\h #\i #\j #\k #\l #\m #\n #\o #\p #\q #\r
-                       #\s #\t #\u #\v #\w #\x #\y #\z #\Ñ #\ñ))
-(define special-charac(list #\* #\.))
-
-;; Borra todos los archivos
-;; *.* = true
-;;; READY
+;; OP-DEL-ALL
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING 
+;; RECORRIDO = NUMERO
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA UN 1 EN CASO DE QUE EL STRING INGRESADO SEA EL CASO
+;; QUE INDICA BORRAR TODOS LOS ARCHIVOS.
+;; SE DESEAN BORRAR TODOS LOS ARCHIVOS EN ESTE CASO
+;; CASO => *.*  
 
 (define op-del-all
   (lambda(str)
@@ -502,9 +596,16 @@
           0)
        #f)))
 
-;; Borra todos los archivos con extensión txt
-;; *.txt = true
-;; READY
+;; OP-DEL-BY-EXT
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = STRING
+;; RECORRIDO = NUMERO 
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA UN 2 EN CASO DE QUE EL STRING INGRESADO SEA EL CASO
+;; QUE INDICA BORRAR TODOS LOS ARCHIVOS QUE CUMPLAN CON UNA EXTENCION EN
+;; ESPECIFICO.
+;; EJEMPLO CON EL QUE SE DESEA BORRAR TODOS LOS ARCHIVOS .TXT:
+;; CASO => *.txt 
 
 (define op-del-by-ext
   (lambda(str)
@@ -517,9 +618,18 @@
           0)
        #f)))
 
-;; Borra todos los archivos que comienzan con la letra f y tienen extensión txt
-;; g*.txt
-;; READY
+
+;; OP-DEL-BY-LETTER-AND-EXT
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = NUMERO
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA UN 3 EN CASO DE QUE EL STRING INGRESADO SE UNA LETRA Y
+;; UNA EXTENSION, LO QUE INDICARIA BORRAR TODOS LOS ARCHIVOS QUE INICIEN CON LA
+;; LETRA INGRESADA Y CUMPLEN CON LA EXTENSION EN ESPECIFICO.
+;; EJEMPLO CON EL QUE SE DESEA BORRAR TODOS LOS ARCHIVOS QUE COMIENZAN CON LA LETRA
+;; G Y TIENEN LA EXTENSION TXT.
+;; CASO => g*.txt
 
 (define op-del-by-letter-and-ext
   (lambda(str)
@@ -532,21 +642,15 @@
           0)
        #f)))
 
-(define get-letter
-  (lambda(str)
-    (if(string? str)
-       (car(string->list str))
-       #f)))
-
-(define get-ext
-  (lambda(str)
-    (if(string? str)
-       (list->string(member #\. (string->list str)))
-       #f)))
-
-;; Borra el archivo .txt
-;; file.txt
-
+;; OP-DEL-FILE
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = STRING
+;; RECORRIDO = NUMERO
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA UN 4 EB CASO DE QUE EL STRING SEA EL NOMBRE DE UN ARCHIVO
+;; QUE SE NECESITA SER ELIMINADO.
+;; EJEMPLO EN EL QUE SE DESEA BORRAR UN ARCHIVO LLAMADO FILE DEL TIPO .TXT
+;; CASO => file.txt
 
 (define op-del-file
   (lambda(str)
@@ -556,10 +660,16 @@
           4
           0)
        #f)))
-              
 
-;; Borra la carpeta “folder1” con todo su contenido
-;; READY
+;; OP-DEL-DIR
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = STRING
+;; RECORRIDO = NUMERO 
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA UN 5 EN CASO DE QUE EL STRING SEA EL PATH INGRESADO, SEA
+;; EL NOMBRE DE UN DIRECTORIO.
+;; EJEMPLO EN EL QUE SE DESEA ELIMINAR UN DIRECTORIO
+;; CASO => "folder1"
 
 (define op-del-dir
   (lambda(str)
@@ -569,6 +679,14 @@
           5)
        #f)))
 
+;; GET-DEL-OPTION
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = NUMERO QUE REPRESENTA LA OPCION QUE SE EJECUTARA
+;; RECURSION = N/A
+;; DESCRIPCION = CON AYUDA DE LAS FUNCIONES PREVIAMENTE DEFINIDAS SE SABE LA OPCION
+;; DE CUAL TIPO DE DEL SE DEBE APLICAR.
+
 (define get-del-option
   (lambda(str)(+
                (op-del-all str)
@@ -577,13 +695,23 @@
                (op-del-file str)
                (op-del-dir str))))
 
-(define (delete-all lst)
-  (filter (lambda (sublst) (= (length sublst) 4))
-          lst))
+;; DELETE-EXT
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = STRING, LISTA
+;; RECORRIDO = LISTA 
+;; RECURSION = N/A
+;; DESCRIPCION = ELIMINA LOS ARCHIVOS QUE COINCIDAN CON LA EXTENSION DADA.
 
 (define (delete-ext str lst)
   (filter (lambda (sublst) (not (member str sublst)))
           lst))
+
+;; DELETE-BY-LETTER-AND-EXT
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = LISTA, CHAR, STRING
+;; RECORRIDO = LISTA 
+;; RECURSION = N/A
+;; DESCRIPCION = ELIMINA SEGUN UNA LETRA Y UNA EXTENSION DADA.
 
 (define (delete-by-letter-and-ext lst letter str)
   (filter (lambda (sublst)
@@ -593,17 +721,40 @@
                           (equal? str (cadr (caddr sublst)))))))
           lst))
 
+;; DEL-BY-FILENAME-1
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = STRING
+;; RECURSION = N/A
+;; DESCRIPCION = RECORTA EL NOMBRE DEL ARCHIVO ELIMINANDO LA EXTENSION.
+
 (define del-by-filename-1
   (lambda(str)
     (if(string? str)
        (list->string(reverse(cdr(member #\. (reverse(string->list str))))))
        #f)))
 
+;; DEL-BY-FILENAME-2
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = STRING
+;; RECURSION = N/A
+;; DESCRIPCION = RECORTA EL NOMBRE DEL ARCHIVO ELIMINANDO EL NOMBRE PARA SOLO
+;; DEJAR LA EXTENSION.
+
 (define del-by-filename-2
   (lambda(str)
     (if(string? str)
        (list->string(member #\. (string->list str)))
        #f)))
+
+;; DEL-BY-NAME
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = LISTA, STRING, STRING
+;; RECORRIDO = LISTA
+;; RECURSION = NATURAL
+;; DESCRIPCION = ELIMINA SEGUN NOMBRE, ES DECIR EN CASO DE QUE SE INDIQUE ALGO
+;; DEL TIPO => "file.txt".
 
 (define (del-by-name lst str1 str2)
   (cond ((null? lst) '())
@@ -621,6 +772,12 @@
          (del-by-name (cdr lst) str1 str2))
         (else (cons (car lst) (del-by-name (cdr lst) str1 str2)))))
 
+;; GET-LETTER-DIR-DEL
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = STRING
+;; RECURSION = N/A
+;; DESCRIPCION = OBTIENE EL DIRECTORIO QUE SE DEBE ELIMINAR.
 
 (define get-letter-dir-del
   (lambda(str)
@@ -628,20 +785,36 @@
        (car(string->list str))
        #f)))
 
+;; GET-EXT-DIR-DEL
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING
+;; RECORRIDO = STRING
+;; RECURSION = N/A
+;; DESCRIPCION = OBTIENE EXTENSION.
+
 (define get-ext-dir-del
   (lambda(str)
     (if(string? str)
        (list->string(member #\. (string->list str)))
        #f)))
 
-(define (delete-by-ext lst str)
-  (filter (lambda (sublst)
-            (not (member str sublst)))
-          lst))
+;; DELETE-BY-DIR
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = LISTA, STRING
+;; RECORRIDO = LISTA
+;; RECURSION = N/A
+;; DESCRIPCION = BORRA SEGUN EL DIRECTORIO INDICADO.
 
 (define (delete-by-dir lists str)
   (filter (lambda (lst) (not (string-contains? (cadr lst) str))) lists))
 
+;; REQUERIMIENTO FUNCIONAL N°12:
+;; DEL
+;; IMPLEMENTACION = FUNCION CURRIFICADA. ELIMINA EL ARCHIVO O SEGUN LA INDICACION
+;; DOMINIO = SYSTEM, STRING
+;; RECORRIDO = SYSTEM CON LA SOLICITUD DE DEL APLICADA
+;; RECURSION = N/A
+;; DESCRIPCION = ELIMINA SEGUN LO QUE SE INDICA.
 
 (define del
   (lambda(system)
@@ -656,7 +829,7 @@
                 (get-system-drive system)
                 (get-system-current-drive system)
                 (list "/")
-                (delete-all(get-system-paths system)))
+                null)
             (if(equal? 2 (get-del-option f-name-or-pattern))
               (make-system
                 (get-system-current-user system)
@@ -702,13 +875,27 @@
 
 
 
-;; RD
+;; FUNCIONES EXTRAS DE RD
+
+;; STRING-CONTAINS?
+;; IMPLEMENTACION = RECURSIVA 
+;; DOMINIO = STRING, STRING
+;; RECORRIDO = BOOLEANO
+;; RECURSION = NATURAL
+;; DESCRIPCION = VERIFICA SI UN STRING ES CONTENIDO EN OTRO.
 
 (define (string-contains? str sub)
   (cond ((>= (string-length str) (string-length sub))
          (or (string=? (substring str 0 (string-length sub)) sub)
              (string-contains? (substring str 1) sub)))
         (else #f)))
+
+;; CHECK-FALSE
+;; IMPLEMENTACION = RECURSIVA
+;; DOMINIO = LISTA
+;; RECORRIDO = LISTA O BOOLEANO
+;; RECURSION = NATURAL
+;; DESCRIPCION = CHECKEA SI UNA LISTA CONTIENE UN BOOLEANO FALSO.
 
 (define check-false
   (lambda (lst)
@@ -722,6 +909,14 @@
                     #f))
             #f))))
 
+;; DEL-INNER
+;; IMPLEMENTACION = RECURSIVA
+;; DOMINIO = LISTA, STRING
+;; RECORRIDO = LISTA
+;; RECURSION = NATURAL
+;; DESCRIPCION = ELIMINA LISTAS SI CONTIENEN ALGUN STRING QUE CONTENGA
+;; EL STRING DADO.
+
 (define del-inner
   (lambda (lst str times)
     (if (null? lst)
@@ -731,6 +926,14 @@
             (if (string-contains? (cadr (car lst)) str)
                 (del-inner (cdr lst) str (- times 1))
                 (cons (car lst) (del-inner (cdr lst) str times)))))))
+
+;; REQUERIMIENTO FUNCIONAL N°13:
+;; RD
+;; IMPLEMENTACION = FUNCION CURRIFICADA. DECLARATIVA
+;; DOMINIO = SYSTEM, STRING
+;; RECORRIDO = SYSTEM CON LA SOLICITUD APLICADA
+;; RECURSION = N/A
+;; DESCRIPCION = ELIMINA DIRECTORIO SOLO EN CASO DE ESTAR VACIO
 
 (define rd
   (lambda(system)
@@ -750,14 +953,27 @@
 
 
 
-; COPY
-(define check-if-file ;entrega true para files y false para carpetas
+;; CHECK-IF-FILE
+;; IMPLEMENTACION = DECLARATIVA 
+;; DOMINIO = STRING
+;; RECORRIDO = BOOLEANO
+;; RECURSION = N/A
+;; DESCRIPCION = ENTREGA TRUE PARA FILES Y FALSE PARA CARPETAS
+
+(define check-if-file
   (lambda(str)
     (if(string? str)
        (if(list? (member #\. (string->list str)))
           #t
           #f)
        #f)))
+
+;; FIND-FILE
+;; IMPLEMENTACION = RECURSIVA
+;; DOMINIO = STRING, STRING, LISTA
+;; RECORRIDO = FILE
+;; RECURSION = NATURAL
+;; DESCRIPCION = BUSCA UN NOMBRE EN LOS PATHS.
 
 ; reuso de del-by-filename-1 y del-by-filename-2
 ;            (name-getter)        (ext-getter)
@@ -771,11 +987,23 @@
          (caddr (car lst)))
         (else (find-file str1 str2 (cdr lst)))))
 
-(define copy-file ;returns file path
+;; COPY-FILE
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = LISTA, LISTA, LISTA
+;; RECORRIDO = STRING DE FILE PATH
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA UN FIKLE PATH.
+
+(define copy-file 
   (lambda(src dir system)
     (file-path (car(get-system-current-drive system)) (string-append dir (car src)(cadr src)) src (cadr src) (get-system-current-user system))))
 
-
+;; CHECK-IF-BELONGS-LST
+;; IMPLEMENTACION = RECURSION DE COLA
+;; DOMINIO = STRING, LISTA DE LISTAS
+;; RECORRIDO = LISTA
+;; RECURSION = DE COLA
+;; DESCRIPCION = ACUMULA LAS LISTAS QUE CONTENGAN EL STRING DADO (PATH).
 
 ;copy-folder
 (define (check-if-belongs-lst str lst-of-lst)
@@ -785,22 +1013,58 @@
                (check-if-belongs-lst str (cdr lst-of-lst))))
         (else (check-if-belongs-lst str (cdr lst-of-lst)))))
 
+;; CHECK-IF-BELONGS-HELPER
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING, LISTA
+;; RECORRIDO = BOOLEANO
+;; RECURSION = N/A
+;; DESCRIPCION = CHECKEA SI EL STRING ES CONTENIDO POR EL SEGUNDO ELEMENTO DE LA LISTA.
+
 (define (check-if-belongs-helper str lst)
   (string-contains? (cadr lst) str))
+
+;; GET-FOLDERS-APPLY
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING, LISTA
+;; RECORRIDO = LISTA
+;; RECURSION = N/A
+;; DESCRIPCION = RETORNA DIRECTORIOS QUE CUMPLAN SEGUN EL STRING DADO.
 
 (define get-folders-apply
  (lambda(str lst)
    (check-if-belongs-lst str lst)))
+
+;; PATH-FROM-COPIES
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING, LISTA
+;; RECORRIDO = LISTA
+;; RECURSION = N/A
+;; DESCRIPCION = GENERA UNA LISTA A PARTIR DEL STRING DADO Y UNA LISTA ACUMULANDO
+;; LOS PATHS.
 
 (define (path-from-copies str lst)
   (map (lambda (inner)
          (list (car inner) str (cddr inner)))
        lst))
 
+;; COPY-FOLDER
+;; IMPLEMENTACION = DECLARATIVA
+;; DOMINIO = STRING, STRING ,LISTA
+;; RECORRIDO = LISTA
+;; RECURSION = N/A
+;; DESCRIPCION = COPIA UN DIRECTORIO
+
 (define copy-folder
   (lambda(src dir paths)
     (path-from-copies dir (get-folders-apply src paths))))
 
+;; REQUERIMIENTO FUNCIONAL N°14:
+;; COPY
+;; IMPLEMENTACION = FUNCION CURRIFICADA. DECLARATIVA
+;; DOMINIO = SYSTEM, STRING
+;; RECORRIDO = SYSTEM CON LA SOLICITUD DE DEL APLICADA
+;; RECURSION = N/A
+;; DESCRIPCION = COPIA ARCHIVOS O DIRECTORIOS SEGUN INDICADO
 
 (define copy
   (lambda(system)
@@ -821,8 +1085,16 @@
            (get-system-paths system)))
          #f))))
 
-
 ;; COMIENZO MOVE
+
+;; DELETE-ORIGINAL
+;; IMPLEMENTACION = RECURSIVA
+;; DOMINIO = LISTA, STRING, STRING
+;; RECORRIDO = LISTA
+;; RECURSION = NATURAL
+;; DESCRIPCION = AL MOVER UN ARCHIVO SE ENTIENDE QUE DEJA DE EXISTIR EN DONDE
+;; PRIMERO ESTABA PARA UBICARSE EN SU NUEVA LOCACIÓN, ESTA FUNCION ELIMINA
+;; EL ARCHIVO EN SU PRIMERA UBICACION.
 
 (define (delete-original lsts str1 str2)
   (cond ((null? lsts) '())
@@ -832,12 +1104,27 @@
          (cons (car lsts) (delete-original (cdr lsts) str1 str2)))
         (else (delete-original (cdr lsts) str1 str2))))
 
+;; DELETE-ORIGINAL-DIR
+;; IMPLEMENTACION = RECURSIVA
+;; DOMINIO = STRING, LISTA
+;; RECORRIDO = LISTA
+;; RECURSION = NATURAL
+;; DESCRIPCION = MISMO PROCEDIMIENTO QUE LA FUNCION ANTERIORMENTE DEFINIDA
+;; PERO AHORA PARA DIRECTORIOS.
+
 (define (delete-original-dir str lsts)
   (cond ((null? lsts) '()) ; base case: empty list
         ((string-contains? (string-upcase (cadr (car lsts))) (string-upcase str))
          (delete-original-dir str (cdr lsts))) ; skip this list and move on to the next
         (else (cons (car lsts) (delete-original-dir str (cdr lsts)))))) ; keep this list and move on to the next
 
+;; REQUERIMIENTO FUNCIONAL N°15:
+;; MOVE
+;; IMPLEMENTACION = FUNCION CURRIFICADA. 
+;; DOMINIO = SYSTEM, STRING
+;; RECORRIDO = SYSTEM CON LA SOLICITUD DE DEL APLICADA
+;; RECURSION = N/A
+;; DESCRIPCION = MUEVE A UN PATH DADO Y ELIMINA DE LA RUTA DE ORIGEN
 
 (define move
   (lambda(system)
@@ -902,7 +1189,7 @@
 ;S16
 (define F1(file "Texto Calculo" ".txt" "En este texto..."))
 ;F1
-(define F2(file "Una noche en medellin" ".mp3" "Me puse las balenciaga"))
+(define F2(file "Drake - Jungle" ".mp3" "These days, im lettin god..."))
 (define F3(file "Informe paradigmas" ".txt" "Laboratorio N°1"))
 (define S17((run S16 add-file)F1))
 ;S17
