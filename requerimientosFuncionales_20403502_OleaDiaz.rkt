@@ -1,10 +1,10 @@
 #lang racket
 (provide(all-defined-out))
-(require (file "otrasFunciones.rkt"))
-(require (file "system.rkt"))
-(require (file "drive.rkt"))
-(require (file "directory.rkt"))
-(require (file "filee.rkt"))
+(require (file "otrasFunciones_20403502_OleaDiaz.rkt"))
+(require (file "system_20403502_OleaDiaz.rkt"))
+(require (file "drive_20403502_OleaDiaz.rkt"))
+(require (file "directory_20403502_OleaDiaz.rkt"))
+(require (file "filee_20403502_OleaDiaz.rkt"))
 
 ;; REQUERIMIENTO FUNCIONAL N°3:
 ;; RUN
@@ -39,7 +39,7 @@
                     (get-system-current-path system)
                     (get-system-paths system))
               (if(existing-drive? letter (collector-letter (get-system-drive system)))
-                 #f
+                 system
                  (make-system(get-system-current-user system)
                     (get-system-name system)
                     (get-system-date system)
@@ -62,7 +62,7 @@
   (lambda(system)
     (lambda(name)
       (if(list?(member name (get-system-user system)))
-         #f
+         system
          (make-system(get-system-current-user system)
                      (get-system-name system)
                      (get-system-date system)
@@ -94,7 +94,7 @@
                         (get-system-current-drive system)
                         (get-system-current-path system)
                         (get-system-paths system))
-            #f)
+            system)
             #f))))
 
 
@@ -121,7 +121,7 @@
                      (get-system-paths system)))))
 
 
-;; REQUERIMIENTO FUNCIONAL N°7:
+;; REQUERIMIENTO FUNCIONAL N°8:
 ;; SWITCH-DRIVE
 ;; IMPLEMENTACION = FUNCION CURRIFICADA, AGREGA UN BOOLEANO VERDADERO PARA EL
 ;; DRIVE QUE VA A SER USADO
@@ -136,7 +136,7 @@
   (lambda(system)
     (lambda(letter)
       (if(null?(get-system-current-user system))
-         #f;Caso de no haber logeado
+         system;Caso de no haber logeado
          (if(existing-drive? letter (collector-letter (get-system-drive system)))
             (if(null? (get-system-current-drive system)) 
                (make-system (get-system-current-user system); En caso de que no haya ningún drive en el momento
@@ -155,7 +155,7 @@
                             (cons letter (cdr(get-system-current-drive system)))
                             (list "/")
                             (get-system-paths system))) 
-            #f))))); Caso de que el drive que se quiera cambiar no exista
+            system))))); Caso de que el drive que se quiera cambiar no exista
  
 ;; REQUERIMIENTO FUNCIONAL N°9:
 ;; MD
@@ -169,6 +169,10 @@
 (define md
   (lambda(system)
      (lambda(name-directory)
+       (if(existing-folder? (get-system-paths system) (string-append (string(car(get-system-current-drive system)))"/" name-directory "/"))
+       system
+       (if(existing-folder? (get-system-paths system) (string-append (car(get-system-current-path system))(string(car(get-system-current-drive system)))"/" name-directory "/"))
+       system
        (make-system (get-system-current-user system)
                             (get-system-name system)
                             (get-system-date system)
@@ -176,7 +180,7 @@
                             (get-system-drive system)
                             (get-system-current-drive system)
                             (get-system-current-path system)
-                            (cons (directory name-directory (car(get-system-current-drive system))(car(get-system-current-user system))system) (get-system-paths system))))))
+                            (cons (directory name-directory (car(get-system-current-drive system))(car(get-system-current-user system))system) (get-system-paths system))))))))
 
 
 
@@ -219,7 +223,9 @@
                 (get-system-user system)
                 (get-system-drive system)
                 (get-system-current-drive system)
-                (list (dir-name-maker-subdir path (car(get-system-current-drive system))(car(get-system-current-path system)))) 
+                (if (existing-folder? (get-system-paths system) (string-append (car(get-system-current-path system))(string(car(get-system-current-drive system)))"/" path "/"))
+                    (get-system-current-path)
+                    (list (dir-name-maker-subdir path (car(get-system-current-drive system))(car(get-system-current-path system))))) ;; Checkeando que la carpeta exista
                 (get-system-paths system)))
          #f)))); Caso no entrega string
 
@@ -390,5 +396,6 @@
              (get-system-drive system)
              (get-system-current-drive system)
              (get-system-current-path system)
-             (cons (copy-folder src dir (delete-original-dir src (get-system-paths system))))))#f))))
+             (cons (copy-folder src dir (delete-original-dir src (get-system-paths system))) (get-system-paths system))))
+         #f))))
 

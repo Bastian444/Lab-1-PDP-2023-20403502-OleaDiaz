@@ -14,7 +14,7 @@
 ;; RECORRIDO = SYSTEM
 ;; RECURSION = N/A
 ;; DESCRIPCION = OBTIENE UN NOMBRE Y DEVUELVE UN SYSTEM
-(require (file "datesys.rkt"))
+(require (file "datesys_20403502_OleaDiaz.rkt"))
 
 (define system (lambda (name)
                  (if (string? name)

@@ -1,15 +1,36 @@
 #lang racket
-(require (file "system.rkt"))
-(require (file "drive.rkt"))
-(require (file "directory.rkt"))
-(require (file "filee.rkt"))
-(require "user.rkt")
+(require (file "system_20403502_OleaDiaz.rkt"))
+(require (file "drive_20403502_OleaDiaz.rkt"))
+(require (file "directory_20403502_OleaDiaz.rkt"))
+(require (file "filee_20403502_OleaDiaz.rkt"))
+(require "user_20403502_OleaDiaz.rkt")
 (provide(all-defined-out))
 
 ;; OTRAS FUNCIONES:
 ;; EN ESTA PARTE SE PRESENTA UN GRUPO DE FUNCIONES NO REQUERIDAS EN EL ENUNCIADO OFICIAL
 ;; CREADAS CON EL PROPOSITO DE LOGRAR DE MEJOR MANERA LOS DIVERSOS OBJETIVOS. EN ALGUNOS
 ;; CASOS ESTAS REPRESENTARAN UNA OPTIMIZACION PARA EL PROYECTO.
+
+;; EXISTING-FOLDER?
+;; IMPLEMENTACION =  DECLARATIVA
+;; DOMINIO = DRIVE, LISTA 
+;; RECORRIDO = BOOLEANO
+;; RECURSION = N/A
+;; DESCRIPCION: COMPARA SI EL NOMBRE DE DIRECTORIO EXISTE YA.
+
+(define (existing-folder? lst target-string)
+  (if (not lst)
+      #f
+      (cond
+        ((null? lst) #f) 
+        ((list? (car lst))
+         (or (existing-folder? (car lst) target-string)
+             (existing-folder? (cdr lst) target-string))) 
+        ((string? (car lst)) 
+         (if (equal? (car lst) target-string)
+             #t 
+             (existing-folder? (cdr lst) target-string))) 
+        (else (existing-folder? (cdr lst) target-string)))))
 
 ;; FUNCION COLLECTOR-LETTER-LST
 ;; IMPLEMENTACION =  DECLARATIVA, USO DE LISTA
@@ -35,7 +56,7 @@
 
 (define (existing-drive? new-drive drives)
   (if (not (member new-drive drives))
-      #f
+      system
       (eqv? new-drive (car (filter (lambda (x) (eqv? new-drive x)) drives)))))
 
 ;; FUNCION MAKE-DRIVE
@@ -436,7 +457,8 @@
 
 (define copy-file 
   (lambda(src dir system)
-    (file-path (car(get-system-current-drive system)) (string-append dir (car src)(cadr src)) src (cadr src) (get-system-current-user system))))
+    (and src dir system
+    (file-path (car(get-system-current-drive system)) (string-append dir (car src)(cadr src)) src (cadr src) (get-system-current-user system)))))
 
 ;; CHECK-IF-BELONGS-LST
 ;; IMPLEMENTACION = RECURSION DE COLA
@@ -461,7 +483,8 @@
 ;; DESCRIPCION = CHECKEA SI EL STRING ES CONTENIDO POR EL SEGUNDO ELEMENTO DE LA LISTA.
 
 (define (check-if-belongs-helper str lst)
-  (string-contains? (cadr lst) str))
+  (and str lst
+  (string-contains? (cadr lst) str)))
 
 ;; GET-FOLDERS-APPLY
 ;; IMPLEMENTACION = DECLARATIVA

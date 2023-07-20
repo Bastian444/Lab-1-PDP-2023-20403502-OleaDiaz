@@ -8,9 +8,9 @@
 ;; RECORRIDO = DIRECTORIO
 ;; RECURSION = N/A
 ;; DESCRIPCION = FUNCION QUE POSTERIORMENTE SE UTILIZARÁ PARA GENERAR UN DIRECTORIO.
-(require (file "datesys.rkt"))
-(require (file "system.rkt"))
-(require (file "user.rkt"))
+(require (file "datesys_20403502_OleaDiaz.rkt"))
+(require (file "system_20403502_OleaDiaz.rkt"))
+(require (file "user_20403502_OleaDiaz.rkt"))
 
 (define (directory name drive usuario system)
   (if (and
