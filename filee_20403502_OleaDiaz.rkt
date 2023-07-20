@@ -8,7 +8,7 @@
 ;; RECORRIDO = FILE
 ;; RECURSION = N/A
 ;; DESCRIPCION = FUNCION QUE POSTERIORMENTE SE UTILIZARA PARA GENERAR UN FILE
-(require (file "datesys.rkt"))
+(require (file "datesys_20403502_OleaDiaz.rkt"))
 
 (define filee(lambda(name ext content)
               (if (and
