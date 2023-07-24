@@ -399,3 +399,35 @@
              (cons (copy-folder src dir (delete-original-dir src (get-system-paths system))) (get-system-paths system))))
          #f))))
 
+;; REQUERIMIENTO FUNCIONAL N°16:
+;; REN (RENAME)
+;; IMPLEMENTACION = FUNCION CURRIFICADA. DECLARATIVA
+;; DOMINIO = SYSTEM, STRING, STRING, SYSTEM
+;; RECORRIDO = SYSTEM
+;; RECURSION = N/A
+;; DESCRIPCION = RENOMBRA UN ARCHIVO O DIRECTORIO
+(define (systemRen-inner str1 str2 lst)
+  (define (name-changer sublist)
+    (if (and (= (length sublist) 6)
+      (equal? (car sublist) str1))
+      (cons str2 (cdr sublist))
+      sublist))
+    (map process-sublist lst))
+
+(define systemRen 
+  (lambda(system)
+    (lambda(initialName newName)
+      (if(and(string? initialName)(string? newName))
+      (make-system
+       (get-system-current-user system)
+       (get-system-name system)
+       (get-system-date system)
+       (get-system-user system)
+       (get-system-drive system)
+       (get-system-current-drive system)
+       (get-system-current-path system)
+       (systemRen-inner initialName newName (get-system-paths system))
+      )system))))
+      
+
+
