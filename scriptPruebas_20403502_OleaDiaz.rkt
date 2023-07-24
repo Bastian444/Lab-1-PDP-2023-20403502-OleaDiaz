@@ -145,7 +145,10 @@ BOD-AF21
 
 ;añadiendo unidades. Incluye caso S2 que intenta añadir unidad con una letra que ya existe
 (define S1 ((run S0 add-drive) #\C "SO" 1000))
+<<<<<<< HEAD
 ; S1
+=======
+>>>>>>> main
 (define S2 ((run S1 add-drive) #\C "SO1" 3000)) 
 (define S3 ((run S2 add-drive) #\D "Util" 2000))
 
@@ -281,6 +284,7 @@ BOD-AF21
 
 ;restaurando
 (define S65 ((run S45 restore) "folder1"))
+<<<<<<< HEAD
 |#
 
 #|
@@ -288,3 +292,9 @@ Iniciar su nuevas pruebas:
 |#
 
 ;(define Sys0 (system "Sistema pruebas Informe"))
+=======
+
+
+
+|#
+>>>>>>> main

@@ -399,6 +399,7 @@
              (cons (copy-folder src dir (delete-original-dir src (get-system-paths system))) (get-system-paths system))))
          #f))))
 
+<<<<<<< HEAD
 ;; REQUERIMIENTO FUNCIONAL N°16:
 ;; REN (RENAME)
 ;; IMPLEMENTACION = FUNCION CURRIFICADA. DECLARATIVA
@@ -431,3 +432,5 @@
       
 
 
+=======
+>>>>>>> main
