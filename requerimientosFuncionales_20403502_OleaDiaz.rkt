@@ -399,7 +399,27 @@
              (cons (copy-folder src dir (delete-original-dir src (get-system-paths system))) (get-system-paths system))))
          #f))))
 
-<<<<<<< HEAD
+;; REQUERIMIENTO NO FUNCIONAL
+;; SYSTEMREN-INNER
+;; IMPLEMENTACION = RECURSIVA
+;; DOMINIO = STRING, STRING, LIST
+;; RECORRIDO = LIST
+;; RECURSION = DE COLA
+;; DESCRIPCION = FUNCION AUXILIAR DE SYSTEMREN
+(define (systemRen-inner str1 str2 lst)
+  (define (name-changer item)
+    (if (and (= (length item) 6)
+             (equal? str1 (caar (cddr item)))) ; Access the first element of the third element
+        (list (car item)
+              (car (cddr item))
+              (list (car (caddr item)) str2 (caddr (caddr item))) ; Update the first element of the third element
+              (cadddr item)
+              (cdddr item)
+              (cddddr item))
+        item))
+  (map name-changer lst))
+
+
 ;; REQUERIMIENTO FUNCIONAL N°16:
 ;; REN (RENAME)
 ;; IMPLEMENTACION = FUNCION CURRIFICADA. DECLARATIVA
@@ -407,14 +427,6 @@
 ;; RECORRIDO = SYSTEM
 ;; RECURSION = N/A
 ;; DESCRIPCION = RENOMBRA UN ARCHIVO O DIRECTORIO
-(define (systemRen-inner str1 str2 lst)
-  (define (name-changer sublist)
-    (if (and (= (length sublist) 6)
-      (equal? (car sublist) str1))
-      (cons str2 (cdr sublist))
-      sublist))
-    (map process-sublist lst))
-
 (define systemRen 
   (lambda(system)
     (lambda(initialName newName)
@@ -430,7 +442,20 @@
        (systemRen-inner initialName newName (get-system-paths system))
       )system))))
       
+;; REQUERIMIENTO FUNCIONAL N°17:
+;; DIR (DIRECTORY)
+;; IMPLEMENTACION = 
+;; DOMINIO = SYSTEM, STRING
+;; RECORRIDO = SYSTEM
+;; RECURSION = 
+;; DESCRIPCION = MUESTRA LA INFORMACION DE UN ARCHIVO O DIRECTORIO
+(define (filter-by-second-element str lst)
+  (filter (lambda (sublist) (equal? str (cadr sublist))) lst))
+
+(define dir ;; Lista
+  (lambda(system)
+  (filter-by-second-element (car(get-system-current-path system)) (get-system-paths system))))
+    
 
 
-=======
->>>>>>> main
+
